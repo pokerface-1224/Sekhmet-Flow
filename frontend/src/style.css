@@ -1,0 +1,10 @@
+@import "tailwindcss";
+
+/* Override Vue Flow default cursors for better visibility */
+.vue-flow__pane {
+  cursor: default !important;
+}
+
+.vue-flow__node {
+  cursor: move !important;
+}
