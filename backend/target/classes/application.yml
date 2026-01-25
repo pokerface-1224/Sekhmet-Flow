@@ -1,0 +1,10 @@
+server:
+  port: 8080
+
+sekhmet:
+  data-dir: ../data
+  llm:
+    provider: ${LLM_PROVIDER:openai}
+    api-key: ${LLM_API_KEY:}
+    base-url: ${LLM_BASE_URL:}
+    model-name: ${LLM_MODEL_NAME:gpt-3.5-turbo}
