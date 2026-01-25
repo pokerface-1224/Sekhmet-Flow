@@ -2,8 +2,6 @@
 
 Sekhmet 是一个基于 Spring Boot 和 Vue Flow 构建的节点式工作流编排系统。它允许用户通过拖拽节点的方式，可视化的构建、管理和执行 LLM (大语言模型) 工作流。
 
-![Vue Flow](https://vueflow.dev/logo.svg)
-
 ## 🏗️ 核心架构
 
 本项目采用前后端分离架构：
