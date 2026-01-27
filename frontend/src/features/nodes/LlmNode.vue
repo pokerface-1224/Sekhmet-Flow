@@ -25,7 +25,7 @@
       <label class="text-sm text-gray-500 dark:text-gray-400">Model</label>
       <input 
         type="text" 
-        :value="data.modelName || 'gpt-3.5-turbo'"
+        :value="data.modelName"
         @input="(e) => updateNodeData(id, { modelName: (e.target as HTMLInputElement).value })" 
         placeholder="e.g. gpt-4"
         class="border rounded p-1 text-sm bg-transparent dark:border-gray-600 dark:text-gray-200 nodrag" 
@@ -56,5 +56,6 @@ import { useWorkflowStore } from '../../stores/workflowStore'
 defineProps<NodeProps>()
 
 const workflowStore = useWorkflowStore()
+// useVueFlow hook 提供 updateNodeData 用于更新节点数据
 const { updateNodeData } = useVueFlow()
 </script>

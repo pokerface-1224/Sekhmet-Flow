@@ -13,6 +13,9 @@ import '@vue-flow/core/dist/theme-default.css'
 
 const workflowStore = useWorkflowStore()
 const uiStore = useUiStore()
+// onConnect: 处理连线事件
+// project: 坐标转换
+// nodesDraggable: 节点拖拽状态
 const { onConnect, project, nodesDraggable } = useVueFlow()
 
 watch(nodesDraggable, (draggable) => {
@@ -47,6 +50,7 @@ const nodeTypes = {
 // For now, we rely on the store being the source of truth if we were to load it, 
 // but VueFlow maintains its own state. We can sync back to store on changes.
 
+// 处理连接事件
 onConnect((params) => {
   const newEdge = {
     ...params,

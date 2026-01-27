@@ -6,8 +6,10 @@ import { computed } from 'vue'
 const uiStore = useUiStore()
 const workflowStore = useWorkflowStore()
 
+// 获取当前选中的节点
 const selectedNode = computed(() => uiStore.selectedNode)
 
+/** 删除当前选中的节点 */
 const deleteNode = () => {
   if (selectedNode.value) {
     workflowStore.removeNode(selectedNode.value.id)

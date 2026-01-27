@@ -1,4 +1,5 @@
 <script setup lang="ts">
+// 布局组件导入
 import Header from './components/layout/Header.vue'
 import Sidebar from './features/editor/Sidebar.vue'
 import EditorCanvas from './features/editor/EditorCanvas.vue'

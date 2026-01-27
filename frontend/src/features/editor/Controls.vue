@@ -6,19 +6,21 @@ import '@vue-flow/controls/dist/style.css'
 
 const workflowStore = useWorkflowStore()
 
+/** 保存工作流 */
 async function onSave() {
   try {
     await workflowStore.saveWorkflow()
-    // Simple feedback, can be improved with a toast
+    // 简单反馈，后续可优化为 Toast 提示
     console.log('Workflow saved successfully')
   } catch (e) {
     console.error(e)
   }
 }
 
+/** 运行工作流 */
 async function onRun() {
   console.log('Run triggered')
-  // workflowStore.runWorkflow() // To be implemented
+  // workflowStore.runWorkflow() // 待实现: 在 Store 中调用
 }
 </script>
 

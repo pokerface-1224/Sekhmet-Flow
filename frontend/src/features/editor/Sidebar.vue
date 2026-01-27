@@ -3,6 +3,10 @@ import { ref } from 'vue'
 
 const ghostRef = ref<HTMLElement | null>(null)
 
+/**
+ * 拖拽开始事件处理
+ * 设置拖拽数据和自定义拖拽图像
+ */
 const onDragStart = (event: DragEvent, nodeType: string, label: string) => {
   if (event.dataTransfer) {
     if (ghostRef.value) {

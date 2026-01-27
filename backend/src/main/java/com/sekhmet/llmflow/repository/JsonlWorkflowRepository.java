@@ -11,6 +11,10 @@ import java.nio.file.*;
 import java.util.*;
 import java.util.stream.Collectors;
 
+/**
+ * 基于 JSONL 文件的工作流存储库
+ * 将工作流数据持久化到本地文件系统
+ */
 @Repository
 public class JsonlWorkflowRepository {
 
@@ -20,6 +24,10 @@ public class JsonlWorkflowRepository {
     private final ObjectMapper objectMapper = new ObjectMapper();
     private Path workflowFile;
 
+    /**
+     * 初始化方法
+     * 确保存储目录和文件存在
+     */
     @PostConstruct
     public void init() throws IOException {
         Path dir = Paths.get(dataDir);
@@ -32,6 +40,10 @@ public class JsonlWorkflowRepository {
         }
     }
 
+    /**
+     * 查找所有工作流
+     * @return 工作流列表
+     */
     public List<Workflow> findAll() {
         try {
             return Files.lines(workflowFile)
@@ -51,9 +63,13 @@ public class JsonlWorkflowRepository {
         }
     }
 
+    /**
+     * 保存工作流
+     * @param workflow 要保存的工作流对象
+     */
     public void save(Workflow workflow) {
         List<Workflow> all = findAll();
-        // Remove existing with same ID to update
+        // 移除具有相同 ID 的现有记录以进行更新
         all.removeIf(w -> w.getId().equals(workflow.getId()));
         all.add(workflow);
 

@@ -7,9 +7,20 @@ import org.springframework.stereotype.Component;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * 提示词节点执行器
+ * 提供静态提示词文本
+ */
 @Component
 public class PromptNodeExecutor implements NodeExecutor {
 
+    /**
+     * 执行提示词节点
+     * 直接返回配置的文本内容
+     * @param node 节点定义
+     * @param inputs 输入参数 (忽略)
+     * @return 包含 text 的结果映射
+     */
     @Override
     public Map<String, Object> execute(NodeDefinition node, Map<String, Object> inputs) {
         Map<String, Object> output = new HashMap<>();

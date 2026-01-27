@@ -10,21 +10,32 @@ import org.springframework.stereotype.Component;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * LLM 节点执行器
+ * 调用 LLM 服务生成回复
+ */
 @Component
 @RequiredArgsConstructor
 public class LlmNodeExecutor implements NodeExecutor {
 
     private final LlmService llmService;
 
+    /**
+     * 执行 LLM 调用
+     * 从输入中获取提示词，并应用节点特定的配置覆盖
+     * @param node 节点定义 (包含模型配置)
+     * @param inputs 输入参数 (包含 prompt 文本)
+     * @return 包含 response 和 text 的结果映射
+     */
     @Override
     public Map<String, Object> execute(NodeDefinition node, Map<String, Object> inputs) {
         String inputPrompt = "";
 
-        // Simple logic: Concatenate all input texts
+        // 简单逻辑: 拼接所有输入文本
         if (inputs.containsKey("text")) {
             inputPrompt = (String) inputs.get("text");
         } else {
-            // Append all string values
+            // 追加所有字符串值
             for (Object val : inputs.values()) {
                 if (val instanceof String) {
                     inputPrompt += (String) val + "\n";
@@ -32,19 +43,17 @@ public class LlmNodeExecutor implements NodeExecutor {
             }
         }
 
-        // Extract overrides from Node Data
+        // 从节点数据中提取配置覆盖
         LlmConfig overrideConfig = null;
         Map<String, Object> data = node.getData() != null ? node.getData() : new HashMap<>();
 
-        String provider = (String) data.getOrDefault("provider", "openai"); // Default to openai matching UI
+        String provider = (String) data.getOrDefault("provider", "openai"); // 默认为 openai
         String modelName = (String) data.get("modelName");
         String apiKey = (String) data.get("apiKey");
         Object tempObj = data.get("temperature");
 
-        // Always create override config to ensure specific node settings (even
-        // defaults) are applied
-        // and to force validation (e.g. missing key) instead of falling back to
-        // potentially uninitialized global default.
+        // 总是创建覆盖配置，以确保应用节点特定设置 (即使是默认值)
+        // 并且强制验证 (例如缺少 key)，而不是回退到可能未初始化的全局默认值。
         overrideConfig = new LlmConfig();
         overrideConfig.setProvider(provider);
         if (modelName != null && !modelName.isEmpty())
