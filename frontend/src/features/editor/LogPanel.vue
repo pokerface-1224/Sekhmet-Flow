@@ -6,10 +6,9 @@ const logStore = useLogStore()
 
 const logs = computed(() => logStore.logs)
 
-function formatDate(timestamp: string) {
-  return timestamp
-}
 
+
+/** 根据日志类型获取对应的 CSS 类名 */
 function getLogClass(type: string) {
   switch (type) {
     case 'error': return 'text-red-500'

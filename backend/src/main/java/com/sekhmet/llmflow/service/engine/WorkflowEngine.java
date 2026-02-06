@@ -8,6 +8,11 @@ import org.springframework.stereotype.Service;
 
 import java.util.*;
 
+
+/**
+ * 工作流引擎
+ * 负责解析工作流图并调度执行节点
+ */
 @Service
 @RequiredArgsConstructor
 public class WorkflowEngine {
@@ -23,10 +28,16 @@ public class WorkflowEngine {
         }
     }
 
+    /**
+     * 执行工作流
+     * @param workflow 工作流对象
+     * @param initialInputs 初始输入
+     * @return 执行结果
+     */
     public com.sekhmet.llmflow.model.dto.ExecutionResult execute(Workflow workflow, Map<String, Object> initialInputs) {
         long workflowStartTime = System.currentTimeMillis();
 
-        // 1. Build adjacency list
+        // 1. 构建邻接表
         Map<String, List<String>> adj = new HashMap<>();
         Map<String, Integer> inDegree = new HashMap<>();
         Map<String, NodeDefinition> nodeMap = new HashMap<>();
@@ -42,7 +53,7 @@ public class WorkflowEngine {
             inDegree.merge(edge.getTarget(), 1, (a, b) -> a + b);
         }
 
-        // 2. Topological sort (Kahn's algorithm)
+        // 2. 拓扑排序 (Kahn 算法)
         Queue<String> queue = new LinkedList<>();
         for (String nodeId : inDegree.keySet()) {
             if (inDegree.get(nodeId) == 0) {
