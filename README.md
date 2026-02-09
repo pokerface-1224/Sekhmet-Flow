@@ -9,10 +9,10 @@ Sekhmet 是一个基于 Spring Boot 和 Vue Flow 构建的节点式工作流编�
 ## ✨ 功能特性
 
 ### 🔗 多 LLM 提供商支持
-- **OpenAI** - GPT-4, GPT-3.5-Turbo 等
-- **Google Gemini** - Gemini Pro 等
-- **DeepSeek** - DeepSeek-Chat, DeepSeek-Coder 等
-- **自定义 Base URL** - 支持兼容 OpenAI 格式的任意 API
+- **OpenAI** 
+- **Google Gemini** 
+- **DeepSeek** 
+- **兼容 OpenAI 格式的 API**
 
 ### 🎨 可视化节点编排
 - 拖拽式节点添加
