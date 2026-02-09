@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed } from "vue";
-import { useLogStore } from "../../stores/logStore";
+import { useLogStore } from "../stores/logStore";
 
 const logStore = useLogStore();
 
@@ -24,32 +24,32 @@ function getLogClass(type: string) {
 
 <template>
   <div
-    v-if="logStore.isOpen"
-    class="absolute bottom-0 left-0 right-0 h-64 bg-gray-900 border-t border-gray-700 flex flex-col shadow-lg z-50 transition-all duration-300"
+    class="h-screen flex flex-col overflow-hidden bg-gray-900 text-gray-100"
   >
+    <!-- Header -->
     <div
-      class="flex items-center justify-between px-4 py-2 bg-gray-800 border-b border-gray-700"
+      class="flex items-center justify-between px-4 py-3 bg-gray-800 border-b border-gray-700"
     >
-      <h3 class="text-sm font-semibold text-gray-200">执行日志</h3>
-      <div class="flex gap-2">
-        <button
-          @click="logStore.clearLogs()"
-          class="text-xs px-2 py-1 bg-gray-700 hover:bg-gray-600 rounded text-gray-300"
+      <div class="flex items-center gap-3">
+        <div
+          class="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center text-white font-bold text-lg"
         >
-          清空
-        </button>
-        <button
-          @click="logStore.togglePanel()"
-          class="text-xs px-2 py-1 bg-gray-700 hover:bg-gray-600 rounded text-gray-300"
-        >
-          关闭
-        </button>
+          S
+        </div>
+        <h1 class="text-lg font-semibold text-gray-200">执行日志</h1>
       </div>
+      <button
+        @click="logStore.clearLogs()"
+        class="text-xs px-3 py-1.5 bg-gray-700 hover:bg-gray-600 rounded text-gray-300 transition-colors"
+      >
+        清空日志
+      </button>
     </div>
 
+    <!-- Log Content -->
     <div class="flex-1 overflow-auto p-4 font-mono text-sm">
-      <div v-if="logs.length === 0" class="text-gray-500 italic">
-        暂无日志。
+      <div v-if="logs.length === 0" class="text-gray-500 italic text-center py-8">
+        暂无日志，运行工作流后将在此显示执行日志。
       </div>
       <div
         v-for="log in logs"

@@ -17,7 +17,8 @@ public class ChatOutputNodeExecutor implements NodeExecutor {
     /**
      * 执行输出逻辑
      * 将输入文本拼接并作为最终输出
-     * @param node 节点定义
+     * 
+     * @param node   节点定义
      * @param inputs 输入参数
      * @return 包含 output 字段的结果映射
      */
