@@ -1,102 +1,120 @@
 <script setup lang="ts">
-import { VueFlow, useVueFlow, type Node, type NodeMouseEvent, type NodeChange, type EdgeChange } from '@vue-flow/core'
-import { Background } from '@vue-flow/background'
-import { watch } from 'vue'
-import Controls from './Controls.vue'
-import LlmNode from '../nodes/LlmNode.vue'
-import PromptNode from '../nodes/PromptNode.vue'
-import ChatOutputNode from '../nodes/ChatOutputNode.vue'
-import { useWorkflowStore } from '../../stores/workflowStore'
-import { useUiStore } from '../../stores/uiStore'
-import '@vue-flow/core/dist/style.css'
-import '@vue-flow/core/dist/theme-default.css'
+import { Background } from "@vue-flow/background";
+import {
+  VueFlow,
+  useVueFlow,
+  type EdgeChange,
+  type Node,
+  type NodeChange,
+  type NodeMouseEvent,
+} from "@vue-flow/core";
+import "@vue-flow/core/dist/style.css";
+import "@vue-flow/core/dist/theme-default.css";
+import { watch } from "vue";
+import { useUiStore } from "../../stores/uiStore";
+import { useWorkflowStore } from "../../stores/workflowStore";
+import ChatOutputNode from "../nodes/ChatOutputNode.vue";
+import LlmNode from "../nodes/LlmNode.vue";
+import PromptNode from "../nodes/PromptNode.vue";
+import SystemPromptNode from "../nodes/SystemPromptNode.vue";
+import Controls from "./Controls.vue";
 
-const workflowStore = useWorkflowStore()
-const uiStore = useUiStore()
+const workflowStore = useWorkflowStore();
+const uiStore = useUiStore();
 // onConnect: 处理连线事件
+// ... (omitted lines)
+
+const nodeTypes = {
+  "llm-node": LlmNode,
+  "prompt-node": PromptNode,
+  "chat-output-node": ChatOutputNode,
+  "system-prompt-node": SystemPromptNode,
+};
 // project: 坐标转换
 // nodesDraggable: 节点拖拽状态
-const { onConnect, project, nodesDraggable } = useVueFlow()
+const { onConnect, project, nodesDraggable } = useVueFlow();
 
 watch(nodesDraggable, (draggable) => {
-  uiStore.setLocked(!draggable)
-})
+  uiStore.setLocked(!draggable);
+});
 
 const onNodesChangeHandler = (changes: NodeChange[]) => {
   changes.forEach((change) => {
-    if (change.type === 'remove') {
-      if (!nodesDraggable.value) return
-      workflowStore.removeNode(change.id)
+    if (change.type === "remove") {
+      if (!nodesDraggable.value) return;
+      workflowStore.removeNode(change.id);
     }
-  })
-}
+  });
+};
 
 const onEdgesChangeHandler = (changes: EdgeChange[]) => {
   changes.forEach((change) => {
-    if (change.type === 'remove') {
-      if (!nodesDraggable.value) return
-      workflowStore.removeEdge(change.id)
+    if (change.type === "remove") {
+      if (!nodesDraggable.value) return;
+      workflowStore.removeEdge(change.id);
     }
-  })
-}
+  });
+};
 
-const nodeTypes = {
-  'llm-node': LlmNode,
-  'prompt-node': PromptNode,
-  'chat-output-node': ChatOutputNode
-}
 
 // Initial state sync (optional, usually start empty or load from store)
-// For now, we rely on the store being the source of truth if we were to load it, 
+// For now, we rely on the store being the source of truth if we were to load it,
 // but VueFlow maintains its own state. We can sync back to store on changes.
 
 // 处理连接事件
 onConnect((params) => {
   const newEdge = {
     ...params,
-    id: `edge_${Date.now()}`
-  }
-  workflowStore.addEdge(newEdge)
-})
+    id: `edge_${Date.now()}`,
+  };
+  workflowStore.addEdge(newEdge);
+});
 
 const onDragOver = (event: DragEvent) => {
-  event.preventDefault()
+  event.preventDefault();
   if (event.dataTransfer) {
-    event.dataTransfer.dropEffect = 'move'
+    event.dataTransfer.dropEffect = "move";
   }
-}
+};
 
 const onDrop = (event: DragEvent) => {
-  const type = event.dataTransfer?.getData('application/vueflow')
-  if (!type) return
+  const type = event.dataTransfer?.getData("application/vueflow");
+  if (!type) return;
 
-  const { left, top } = (event.target as Element).getBoundingClientRect()
-  
+  const { left, top } = (event.target as Element).getBoundingClientRect();
+
   const position = project({
     x: event.clientX - left,
     y: event.clientY - top,
-  })
+  });
 
   const newNode: Node = {
     id: `node_${Date.now()}`,
     type,
     position,
-    label: type === 'llm-node' ? 'LLM Model' : type === 'prompt-node' ? 'Prompt' : 'Chat Output',
-    data: { 
-      label: type 
+    label:
+      type === "llm-node"
+        ? "LLM 模型"
+        : type === "prompt-node"
+          ? "提示词"
+          : type === "system-prompt-node"
+            ? "系统提示词"
+            : "聊天输出",
+    data: {
+      label: type,
     },
-  }
+  };
 
-  workflowStore.addNode(newNode)
-}
+  workflowStore.addNode(newNode);
+};
 
 const onNodeClick = (event: NodeMouseEvent) => {
-  uiStore.selectNode(event.node)
-}
+  uiStore.selectNode(event.node);
+};
 
 const onPaneClick = () => {
-  uiStore.selectNode(null)
-}
+  uiStore.selectNode(null);
+};
 </script>
 
 <template>

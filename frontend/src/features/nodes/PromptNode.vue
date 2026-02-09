@@ -1,11 +1,21 @@
 <template>
-  <BaseNode title="Prompt" :selected="selected" @delete="workflowStore.removeNode(id)">
+  <BaseNode
+    title="提示词"
+    :label="displayLabel"
+    :selected="selected"
+    @delete="workflowStore.removeNode(id)"
+  >
     <div class="flex flex-col gap-2">
-      <textarea 
+      <textarea
         :value="data.text"
-        @input="(e) => updateNodeData(id, { text: (e.target as HTMLTextAreaElement).value })"
-        class="border rounded p-2 text-sm w-full h-24 resize-none bg-transparent dark:border-gray-600 dark:text-gray-200 nodrag" 
-        placeholder="Enter your prompt here..."
+        @input="
+          (e) =>
+            updateNodeData(id, {
+              text: (e.target as HTMLTextAreaElement).value,
+            })
+        "
+        class="border rounded p-2 text-sm w-full h-24 resize-none bg-transparent dark:border-gray-600 dark:text-gray-200 nodrag"
+        placeholder="在此输入提示词..."
       ></textarea>
     </div>
     <Handle type="source" :position="Position.Right" />
@@ -13,13 +23,21 @@
 </template>
 
 <script setup lang="ts">
-import { Handle, Position, useVueFlow } from '@vue-flow/core'
-import BaseNode from './BaseNode.vue'
-import type { NodeProps } from '@vue-flow/core'
-import { useWorkflowStore } from '../../stores/workflowStore'
+import type { NodeProps } from "@vue-flow/core";
+import { Handle, Position, useVueFlow } from "@vue-flow/core";
+import { computed } from "vue";
+import { useWorkflowStore } from "../../stores/workflowStore";
+import BaseNode from "./BaseNode.vue";
 
-defineProps<NodeProps>()
+const props = defineProps<NodeProps>();
 
-const workflowStore = useWorkflowStore()
-const { updateNodeData } = useVueFlow()
+const displayLabel = computed(() => {
+  if (typeof props.label === "string" || typeof props.label === "number") {
+    return props.label;
+  }
+  return undefined;
+});
+
+const workflowStore = useWorkflowStore();
+const { updateNodeData } = useVueFlow();
 </script>

@@ -13,8 +13,8 @@ com\sekhmet\llmflow\controller\WorkflowController.class
 com\sekhmet\llmflow\config\CorsConfig.class
 com\sekhmet\llmflow\model\dto\NodeResult$NodeResultBuilder.class
 com\sekhmet\llmflow\model\dto\ExecutionResult.class
-com\sekhmet\llmflow\service\engine\NodeExecutor.class
 com\sekhmet\llmflow\model\graph\NodeDefinition$Position.class
+com\sekhmet\llmflow\service\engine\NodeExecutor.class
 com\sekhmet\llmflow\service\engine\nodes\ChatOutputNodeExecutor.class
 com\sekhmet\llmflow\service\engine\WorkflowEngine.class
 com\sekhmet\llmflow\config\LlmConfig.class
