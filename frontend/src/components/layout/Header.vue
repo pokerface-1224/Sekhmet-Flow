@@ -89,7 +89,7 @@ onUnmounted(() => {
         S
       </div>
       <h1 class="text-xl font-bold text-gray-800 dark:text-gray-100">
-        Sekhmet 工作流
+        Sekhmet
       </h1>
     </div>
 
