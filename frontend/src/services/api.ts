@@ -5,7 +5,7 @@ import axios from 'axios';
  * 统一配置后端 API 基础地址和请求头
  */
 const api = axios.create({
-    baseURL: 'http://localhost:8080/api',
+    baseURL: '/api',
     headers: {
         'Content-Type': 'application/json',
     },
