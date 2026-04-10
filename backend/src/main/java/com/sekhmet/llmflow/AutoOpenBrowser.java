@@ -6,7 +6,7 @@ import org.springframework.stereotype.Component;
 import java.awt.Desktop;
 import java.net.URI;
 
-@Component
+// @Component  // 已禁用：取消启动时自动打开浏览器
 public class AutoOpenBrowser {
 
     @EventListener(ApplicationReadyEvent.class)
