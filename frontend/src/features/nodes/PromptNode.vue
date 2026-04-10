@@ -4,6 +4,7 @@
     :label="displayLabel"
     :selected="selected"
     @delete="workflowStore.removeNode(id)"
+    themeColor="blue"
   >
     <div class="flex flex-col gap-2">
       <textarea

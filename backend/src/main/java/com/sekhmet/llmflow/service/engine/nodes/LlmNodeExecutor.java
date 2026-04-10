@@ -12,7 +12,10 @@ import com.sekhmet.llmflow.service.LlmService;
 import com.sekhmet.llmflow.service.ModelPoolService;
 import com.sekhmet.llmflow.service.engine.NodeExecutor;
 
-import dev.langchain4j.model.chat.ChatLanguageModel;
+import dev.langchain4j.model.chat.ChatModel;
+import dev.langchain4j.model.chat.response.ChatResponse;
+import dev.langchain4j.data.message.AiMessage;
+import dev.langchain4j.model.output.TokenUsage;
 import lombok.RequiredArgsConstructor;
 
 /**
@@ -32,7 +35,7 @@ public class LlmNodeExecutor implements NodeExecutor {
    * 
    * @param node   节点定义 (包含模型配置)
    * @param inputs 输入参数 (包含 prompt 文本)
-   * @return 包含 response 和 text 的结果映射
+   * @return 包含 response、thinkingContent 和 text 的结果映射
    */
   @Override
   public Map<String, Object> execute(NodeDefinition node, Map<String, Object> inputs) {
@@ -52,12 +55,12 @@ public class LlmNodeExecutor implements NodeExecutor {
 
     Map<String, Object> data = node.getData() != null ? node.getData() : new HashMap<>();
 
-    dev.langchain4j.model.output.Response<dev.langchain4j.data.message.AiMessage> responseObj;
+    ChatResponse responseObj;
     ModelConfig usedConfig = null;
 
     // 1. 尝试从模型池获取 (优先)
     String modelId = (String) data.get("modelId");
-    ChatLanguageModel pooledModel = null;
+    ChatModel pooledModel = null;
     if (modelId != null && !modelId.isEmpty()) {
       pooledModel = modelPoolService.getModel(modelId);
       if (pooledModel != null) {
@@ -88,22 +91,29 @@ public class LlmNodeExecutor implements NodeExecutor {
       responseObj = llmService.generateWithSystemPrompt(systemPrompt, inputPrompt, overrideConfig);
     }
 
-    String responseText = responseObj.content().text();
-    dev.langchain4j.model.output.TokenUsage tokenUsage = responseObj.tokenUsage();
+    AiMessage aiMessage = responseObj.aiMessage();
+    String responseText = aiMessage.text();
 
     Map<String, Object> output = new HashMap<>();
     output.put("response", responseText);
+
+    // 提取思维链内容 (reasoning_content)
+    String thinkingContent = aiMessage.thinking();
+    if (thinkingContent != null && !thinkingContent.isEmpty()) {
+      output.put("thinkingContent", thinkingContent);
+    }
 
     // Construct Debug Info
     Map<String, Object> debugInfo = new HashMap<>();
     if (usedConfig != null) {
       debugInfo.put("provider", usedConfig.getProvider());
-      debugInfo.put("model", usedConfig.getModelName()); // Or ID?
+      debugInfo.put("model", usedConfig.getModelName());
       debugInfo.put("temperature", usedConfig.getTemperature());
       debugInfo.put("topK", usedConfig.getTopK());
       debugInfo.put("topP", usedConfig.getTopP());
     }
 
+    TokenUsage tokenUsage = responseObj.tokenUsage();
     if (tokenUsage != null) {
       Map<String, Object> usageMap = new HashMap<>();
       usageMap.put("input", tokenUsage.inputTokenCount());
@@ -116,6 +126,14 @@ public class LlmNodeExecutor implements NodeExecutor {
       debugInfo.put("finalPromptLayout", "[System]:\n" + systemPrompt + "\n\n[User]:\n" + inputPrompt);
     } else {
       debugInfo.put("finalPromptLayout", "[User]:\n" + inputPrompt);
+    }
+
+    // 如果有思维链，也记录到 debug 信息中
+    if (thinkingContent != null && !thinkingContent.isEmpty()) {
+      debugInfo.put("hasThinking", true);
+      debugInfo.put("thinkingPreview", thinkingContent.length() > 500
+          ? thinkingContent.substring(0, 500) + "..."
+          : thinkingContent);
     }
 
     output.put("_execution_config", debugInfo);

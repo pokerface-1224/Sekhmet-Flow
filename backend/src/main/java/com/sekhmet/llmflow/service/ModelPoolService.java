@@ -12,7 +12,7 @@ import com.sekhmet.llmflow.model.dto.ModelConfig;
 import com.sekhmet.llmflow.model.entity.ModelConfigEntity;
 import com.sekhmet.llmflow.repository.ModelConfigJpaRepository;
 
-import dev.langchain4j.model.chat.ChatLanguageModel;
+import dev.langchain4j.model.chat.ChatModel;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -28,8 +28,8 @@ public class ModelPoolService {
   private final ModelFactory modelFactory;
   private final ModelConfigJpaRepository configRepository;
 
-  // 内存缓存模型实例: id -> ChatLanguageModel
-  private final Map<String, ChatLanguageModel> modelCache = new ConcurrentHashMap<>();
+  // 内存缓存模型实例: id -> ChatModel
+  private final Map<String, ChatModel> modelCache = new ConcurrentHashMap<>();
 
   /**
    * 注册或更新模型配置 (持久化到 SQLite)
@@ -52,7 +52,7 @@ public class ModelPoolService {
   /**
    * 获取模型实例 (懒加载 + 内存缓存)
    */
-  public ChatLanguageModel getModel(String id) {
+  public ChatModel getModel(String id) {
     // 先检查 SQLite 中是否存在配置
     ModelConfigEntity entity = configRepository.findById(id).orElse(null);
     if (entity == null) {

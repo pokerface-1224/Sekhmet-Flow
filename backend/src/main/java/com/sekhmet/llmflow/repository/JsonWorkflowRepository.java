@@ -2,10 +2,11 @@ package com.sekhmet.llmflow.repository;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
+import com.sekhmet.llmflow.config.DataDirectoryConfig;
 import com.sekhmet.llmflow.model.entity.Workflow;
 import jakarta.annotation.PostConstruct;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Repository;
 
 import java.io.*;
@@ -20,11 +21,11 @@ import java.util.stream.Stream;
  * 支持从旧的 workflows.jsonl 自动迁移
  */
 @Repository
+@RequiredArgsConstructor
 @Slf4j
 public class JsonWorkflowRepository {
 
-    @Value("${sekhmet.data-dir}")
-    private String dataDir;
+    private final DataDirectoryConfig dataDirectoryConfig;
 
     private final ObjectMapper objectMapper = new ObjectMapper()
             .enable(SerializationFeature.INDENT_OUTPUT);
@@ -36,12 +37,13 @@ public class JsonWorkflowRepository {
      */
     @PostConstruct
     public void init() throws IOException {
-        workflowsDir = Paths.get(dataDir, "workflows");
+        Path dataDir = dataDirectoryConfig.getResolvedDataDir();
+        workflowsDir = dataDir.resolve("workflows");
         if (!Files.exists(workflowsDir)) {
             Files.createDirectories(workflowsDir);
         }
         // 自动迁移旧的 JSONL 数据
-        migrateFromJsonl();
+        migrateFromJsonl(dataDir);
     }
 
     /**
@@ -120,8 +122,8 @@ public class JsonWorkflowRepository {
      * 将每条记录拆分为独立 JSON 文件，迁移后重命名旧文件为 .bak
      * 迁移过程中同时移除 apiKey 字段
      */
-    private void migrateFromJsonl() {
-        Path oldFile = Paths.get(dataDir, "workflows.jsonl");
+    private void migrateFromJsonl(Path dataDir) {
+        Path oldFile = dataDir.resolve("workflows.jsonl");
         if (!Files.exists(oldFile)) {
             return;
         }
@@ -162,7 +164,7 @@ public class JsonWorkflowRepository {
             }
 
             // 重命名旧文件为 .bak
-            Path backupFile = Paths.get(dataDir, "workflows.jsonl.bak");
+            Path backupFile = dataDir.resolve("workflows.jsonl.bak");
             Files.move(oldFile, backupFile, StandardCopyOption.REPLACE_EXISTING);
             log.info("Migration complete: {} workflows migrated. Old file renamed to workflows.jsonl.bak", migrated);
 

@@ -2,9 +2,6 @@ server:
   port: 1224
 
 spring:
-  datasource:
-    url: jdbc:sqlite:../data/sekhmet.db
-    driver-class-name: org.sqlite.JDBC
   jpa:
     database-platform: org.hibernate.community.dialect.SQLiteDialect
     hibernate:

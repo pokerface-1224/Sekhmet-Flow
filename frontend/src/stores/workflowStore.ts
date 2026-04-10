@@ -182,6 +182,12 @@ export const useWorkflowStore = defineStore("workflow", () => {
               logDetails.系统提示词 = sysPrompt.length > 200 ? sysPrompt.substring(0, 200) + '...' : sysPrompt;
             }
 
+            // Thinking content (思维链)
+            if (result.outputs?.thinkingContent) {
+              const thinking = result.outputs.thinkingContent;
+              logDetails.思维链 = thinking.length > 300 ? thinking.substring(0, 300) + '...' : thinking;
+            }
+
             // Chat output (ChatOutput node)
             if (result.outputs?.output) {
               const output = result.outputs.output;

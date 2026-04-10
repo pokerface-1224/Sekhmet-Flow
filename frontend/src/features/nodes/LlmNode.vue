@@ -4,6 +4,7 @@
     :label="displayLabel"
     :selected="selected"
     @delete="workflowStore.removeNode(id)"
+    themeColor="emerald"
     class="min-w-[320px]"
   >
     <Handle type="target" :position="Position.Left" />
@@ -23,7 +24,7 @@
       </select>
 
       <!-- 2. Base URL -->
-      <label class="text-sm text-gray-500 dark:text-gray-400">Base URL (可选)</label>
+      <label class="text-sm text-gray-500 dark:text-gray-400">Base URL (仅openai兼容需填写)</label>
       <input
         type="text"
         v-model="baseUrlInput"

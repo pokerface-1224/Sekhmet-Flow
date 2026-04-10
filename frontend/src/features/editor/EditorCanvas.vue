@@ -17,6 +17,7 @@ import ChatOutputNode from "../nodes/ChatOutputNode.vue";
 import LlmNode from "../nodes/LlmNode.vue";
 import PromptNode from "../nodes/PromptNode.vue";
 import SystemPromptNode from "../nodes/SystemPromptNode.vue";
+import ThinkingOutputNode from "../nodes/ThinkingOutputNode.vue";
 import Controls from "./Controls.vue";
 
 const workflowStore = useWorkflowStore();
@@ -29,6 +30,7 @@ const nodeTypes = {
   "prompt-node": PromptNode,
   "chat-output-node": ChatOutputNode,
   "system-prompt-node": SystemPromptNode,
+  "thinking-output-node": ThinkingOutputNode,
 };
 // project: 坐标转换
 // nodesDraggable: 节点拖拽状态
@@ -99,7 +101,9 @@ const onDrop = (event: DragEvent) => {
           ? "提示词"
           : type === "system-prompt-node"
             ? "系统提示词"
-            : "聊天输出",
+            : type === "thinking-output-node"
+              ? "思维链输出"
+              : "聊天输出",
     data: {
       label: type,
     },

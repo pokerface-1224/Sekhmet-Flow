@@ -5,11 +5,17 @@ import org.springframework.stereotype.Service;
 import com.sekhmet.llmflow.config.LlmConfig;
 import com.sekhmet.llmflow.model.dto.ModelConfig;
 
-import dev.langchain4j.model.chat.ChatLanguageModel;
+import dev.langchain4j.model.chat.ChatModel;
 import dev.langchain4j.data.message.AiMessage;
 import dev.langchain4j.data.message.UserMessage;
-import dev.langchain4j.model.output.Response;
+import dev.langchain4j.data.message.SystemMessage;
+import dev.langchain4j.data.message.ChatMessage;
+import dev.langchain4j.model.chat.request.ChatRequest;
+import dev.langchain4j.model.chat.response.ChatResponse;
 import lombok.extern.slf4j.Slf4j;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * LLM 服务类
@@ -21,7 +27,7 @@ public class LlmService {
 
   private final LlmConfig globalConfig;
   private final ModelFactory modelFactory;
-  private ChatLanguageModel defaultModel;
+  private ChatModel defaultModel;
 
   public LlmService(LlmConfig llmConfig, ModelFactory modelFactory) {
     this.globalConfig = llmConfig;
@@ -35,7 +41,7 @@ public class LlmService {
     }
   }
 
-  private ChatLanguageModel createModelFromGlobalConfig(LlmConfig config) {
+  private ChatModel createModelFromGlobalConfig(LlmConfig config) {
     ModelConfig dto = ModelConfig.builder()
         .provider(config.getProvider())
         .apiKey(config.getApiKey())
@@ -61,13 +67,18 @@ public class LlmService {
   /**
    * 使用指定模型实例生成文本 (带详细信息)
    */
-  public Response<AiMessage> generateWithModelDetails(String prompt, ChatLanguageModel model) {
+  public ChatResponse generateWithModelDetails(String prompt, ChatModel model) {
     if (model == null) {
       throw new RuntimeException("Model instance is null");
     }
     try {
       log.info("\n====== AI Prompt (User) ======\n{}\n=======================", prompt);
-      return model.generate(UserMessage.from(prompt));
+      List<ChatMessage> messages = new ArrayList<>();
+      messages.add(UserMessage.from(prompt));
+      ChatRequest request = ChatRequest.builder()
+          .messages(messages)
+          .build();
+      return model.chat(request);
     } catch (Exception e) {
       throw new RuntimeException("Error calling LLM: " + e.getMessage(), e);
     }
@@ -76,8 +87,8 @@ public class LlmService {
   /**
    * 使用指定模型实例生成文本 (带系统提示词)
    */
-  public Response<AiMessage> generateWithModelAndSystemPrompt(String systemPrompt, String userPrompt,
-      ChatLanguageModel model) {
+  public ChatResponse generateWithModelAndSystemPrompt(String systemPrompt, String userPrompt,
+      ChatModel model) {
     if (model == null) {
       throw new RuntimeException("Model instance is null");
     }
@@ -86,13 +97,16 @@ public class LlmService {
       return generateWithModelDetails(userPrompt, model);
     }
 
-    java.util.List<dev.langchain4j.data.message.ChatMessage> messages = new java.util.ArrayList<>();
-    messages.add(dev.langchain4j.data.message.SystemMessage.from(systemPrompt));
+    List<ChatMessage> messages = new ArrayList<>();
+    messages.add(SystemMessage.from(systemPrompt));
     messages.add(UserMessage.from(userPrompt));
 
     try {
       log.info("\n====== AI Prompt ======\n[System]:\n{}\n\n[User]:\n{}\n=======================", systemPrompt, userPrompt);
-      return model.generate(messages);
+      ChatRequest request = ChatRequest.builder()
+          .messages(messages)
+          .build();
+      return model.chat(request);
     } catch (Exception e) {
       throw new RuntimeException("Error calling LLM: " + e.getMessage(), e);
     }
@@ -101,8 +115,8 @@ public class LlmService {
   /**
    * 使用指定模型实例生成文本
    */
-  public String generateWithModel(String prompt, ChatLanguageModel model) {
-    return generateWithModelDetails(prompt, model).content().text();
+  public String generateWithModel(String prompt, ChatModel model) {
+    return generateWithModelDetails(prompt, model).aiMessage().text();
   }
 
   /**
@@ -113,30 +127,32 @@ public class LlmService {
    * @return 生成的文本
    */
   public String generate(String prompt, LlmConfig overrideConfig) {
-    Response<AiMessage> response = generateWithDetails(prompt, overrideConfig);
-    return response.content().text();
+    ChatResponse response = generateWithDetails(prompt, overrideConfig);
+    return response.aiMessage().text();
   }
 
   /**
    * 生成文本 (支持覆盖配置) - 返回详细信息
    */
-  /**
-   * 生成文本 (支持覆盖配置) - 返回详细信息
-   */
-  public Response<AiMessage> generateWithDetails(String prompt, LlmConfig overrideConfig) {
-    // Logic refactored to use helper
-    ChatLanguageModel modelToUse = getModelForConfig(overrideConfig);
+  public ChatResponse generateWithDetails(String prompt, LlmConfig overrideConfig) {
+    ChatModel modelToUse = getModelForConfig(overrideConfig);
 
     if (modelToUse == null) {
-      // It means it was a demo config
-      LlmConfig configToUse = (overrideConfig != null) ? overrideConfig : globalConfig; // Simplified
-      return Response
-          .from(AiMessage.from("Mock LLM Response (" + configToUse.getProvider() + ") for prompt: " + prompt));
+      LlmConfig configToUse = (overrideConfig != null) ? overrideConfig : globalConfig;
+      AiMessage mockMessage = AiMessage.from("Mock LLM Response (" + configToUse.getProvider() + ") for prompt: " + prompt);
+      return ChatResponse.builder()
+          .aiMessage(mockMessage)
+          .build();
     }
 
     try {
       log.info("\n====== AI Prompt (User) ======\n{}\n=======================", prompt);
-      return modelToUse.generate(UserMessage.from(prompt));
+      List<ChatMessage> messages = new ArrayList<>();
+      messages.add(UserMessage.from(prompt));
+      ChatRequest request = ChatRequest.builder()
+          .messages(messages)
+          .build();
+      return modelToUse.chat(request);
     } catch (Exception e) {
       LlmConfig configToUse = (overrideConfig != null) ? overrideConfig : globalConfig;
       throw new RuntimeException("Error calling LLM (" + configToUse.getProvider() + "): " + e.getMessage(), e);
@@ -146,57 +162,49 @@ public class LlmService {
   /**
    * 生成文本 (支持系统提示词和覆盖配置)
    */
-  public Response<AiMessage> generateWithSystemPrompt(String systemPrompt, String userPrompt,
+  public ChatResponse generateWithSystemPrompt(String systemPrompt, String userPrompt,
       LlmConfig overrideConfig) {
     if (systemPrompt == null || systemPrompt.isEmpty()) {
       return generateWithDetails(userPrompt, overrideConfig);
     }
 
-    // Logic similar to generateWithDetails to get the model,
-    // but we need to construct a list of messages.
-    // Ideally, we should refactor getModel logic, but for now we duplicate or
-    // reuse.
-    // Let's reuse the logic by extracting the model retrieval.
+    ChatModel modelToUse = getModelForConfig(overrideConfig);
 
-    ChatLanguageModel modelToUse = getModelForConfig(overrideConfig);
-
-    java.util.List<dev.langchain4j.data.message.ChatMessage> messages = new java.util.ArrayList<>();
-    messages.add(dev.langchain4j.data.message.SystemMessage.from(systemPrompt));
+    List<ChatMessage> messages = new ArrayList<>();
+    messages.add(SystemMessage.from(systemPrompt));
     messages.add(UserMessage.from(userPrompt));
 
     try {
       log.info("\n====== AI Prompt ======\n[System]:\n{}\n\n[User]:\n{}\n=======================", systemPrompt, userPrompt);
-      return modelToUse.generate(messages);
+      ChatRequest request = ChatRequest.builder()
+          .messages(messages)
+          .build();
+      return modelToUse.chat(request);
     } catch (Exception e) {
       throw new RuntimeException("Error calling LLM with System Prompt: " + e.getMessage(), e);
     }
   }
 
-  private ChatLanguageModel getModelForConfig(LlmConfig overrideConfig) {
+  private ChatModel getModelForConfig(LlmConfig overrideConfig) {
     LlmConfig configToUse = this.globalConfig;
-    ChatLanguageModel modelToUse = null;
+    ChatModel modelToUse = null;
 
-    // If override provided, create a temporary model instance
     if (overrideConfig != null) {
       LlmConfig mergedConfig = new LlmConfig();
 
-      // 1. Determine Provider
       String effectiveProvider = overrideConfig.getProvider() != null && !overrideConfig.getProvider().isEmpty()
           ? overrideConfig.getProvider()
           : globalConfig.getProvider();
       mergedConfig.setProvider(effectiveProvider);
 
-      // 2. Determine API Key (No cross-provider inheritance)
       String effectiveKey = null;
       if (overrideConfig.getApiKey() != null && !overrideConfig.getApiKey().isEmpty()) {
         effectiveKey = overrideConfig.getApiKey();
       } else if (globalConfig.getProvider().equalsIgnoreCase(effectiveProvider)) {
-        // Only inherit global key if providers match
         effectiveKey = globalConfig.getApiKey();
       }
       mergedConfig.setApiKey(effectiveKey);
 
-      // 3. Other fields
       mergedConfig.setBaseUrl(
           overrideConfig.getBaseUrl() != null ? overrideConfig.getBaseUrl() : globalConfig.getBaseUrl());
       mergedConfig.setModelName(overrideConfig.getModelName() != null ? overrideConfig.getModelName()
@@ -209,16 +217,14 @@ public class LlmService {
           : globalConfig.getTopP());
 
       configToUse = mergedConfig;
-      // Throw exception if creation fails
       modelToUse = createModelFromGlobalConfig(mergedConfig);
     } else {
       modelToUse = this.defaultModel;
     }
 
     if (modelToUse == null) {
-      // Null model implies demo/mock mode due to "demo" key check in createModel
       if ("demo".equals(configToUse.getApiKey())) {
-        return null; // Handle mock in caller if needed, or implement a MockChatModel
+        return null;
       }
       throw new RuntimeException(
           "LLM Provider (" + configToUse.getProvider() + ") not initialized. Check API Key.");
