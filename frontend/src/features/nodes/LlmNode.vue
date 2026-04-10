@@ -17,7 +17,7 @@
         @change="updateProvider"
         class="border rounded p-1 text-sm bg-transparent dark:border-gray-600 dark:text-gray-200 nodrag"
       >
-        <option value="openai">OpenAI兼容</option>
+        <option value="openai兼容">OpenAI兼容</option>
         <option value="gemini">Google Gemini</option>
         <option value="deepseek">Deepseek</option>
       </select>
@@ -38,16 +38,17 @@
         type="password"
         v-model="apiKeyInput"
         @input="updateApiKey"
-        placeholder="输入 API Key"
+        placeholder="临时输入 (不会保存到工作流文件)"
         class="border rounded p-1 text-sm bg-transparent dark:border-gray-600 dark:text-gray-200 nodrag"
       />
+      <p class="text-xs text-gray-400 dark:text-gray-500 -mt-1">Key 通过模型注册持久化到本地数据库，不写入工作流文件</p>
 
       <!-- 4. Model Input & Selection -->
       <div class="flex justify-between items-center">
         <label class="text-sm text-gray-500 dark:text-gray-400">模型名称 (或选择)</label>
         <button
             @click="handleDiscover"
-            :disabled="isDiscovering || !apiKeyInput"
+            :disabled="isDiscovering"
             class="px-2 py-0.5 text-xs rounded bg-blue-500 text-white hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed nodrag"
         >
             {{ isDiscovering ? '发现中...' : '发现' }}
@@ -245,7 +246,6 @@ function handleModelNameInput() {
 }
 
 async function handleDiscover() {
-  if (!apiKeyInput.value) return;
 
   isDiscovering.value = true;
   discoveredModels.value = [];

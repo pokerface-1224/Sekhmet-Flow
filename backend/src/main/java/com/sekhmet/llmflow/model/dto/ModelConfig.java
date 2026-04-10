@@ -17,7 +17,7 @@ public class ModelConfig {
   private String id;
   /** 显示名称 */
   private String name;
-  /** 提供商 (openai, gemini, deepseek, ollama 等) */
+  /** 提供商 (openai, gemini, deepseek 等) */
   private String provider;
   /** API 密钥 */
   private String apiKey;

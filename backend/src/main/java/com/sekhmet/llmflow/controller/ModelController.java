@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.sekhmet.llmflow.config.LlmConfig;
 import com.sekhmet.llmflow.model.dto.ModelConfig;
 import com.sekhmet.llmflow.service.ModelDiscoveryService;
 import com.sekhmet.llmflow.service.ModelPoolService;
@@ -29,13 +30,14 @@ public class ModelController {
 
   private final ModelPoolService modelPoolService;
   private final ModelDiscoveryService modelDiscoveryService;
+  private final LlmConfig llmConfig;
 
   /**
-   * 获取所有已配置的模型
+   * 获取所有已配置的模型 (apiKey 掩码化)
    */
   @GetMapping
   public List<ModelConfig> listModels() {
-    return modelPoolService.getAllConfigs();
+    return modelPoolService.getAllConfigsMasked();
   }
 
   /**
@@ -58,15 +60,17 @@ public class ModelController {
    * 发现指定提供商的可用模型
    * 
    * @param provider 提供商 (openai, gemini, deepseek)
-   * @param apiKey   API 密钥
+   * @param apiKey   API 密钥 (可选，未传时使用全局配置)
    * @param baseUrl  可选的自定义 Base URL
    * @return 可用模型名称列表
    */
   @GetMapping("/discover")
   public List<String> discoverModels(
       @RequestParam(defaultValue = "openai") String provider,
-      @RequestParam String apiKey,
+      @RequestParam(required = false) String apiKey,
       @RequestParam(required = false) String baseUrl) {
-    return modelDiscoveryService.discoverModels(provider, apiKey, baseUrl);
+    // 优先使用前端传入的 apiKey，否则回退到全局配置
+    String effectiveKey = (apiKey != null && !apiKey.isEmpty()) ? apiKey : llmConfig.getApiKey();
+    return modelDiscoveryService.discoverModels(provider, effectiveKey, baseUrl);
   }
 }

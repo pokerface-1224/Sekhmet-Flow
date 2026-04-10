@@ -2,7 +2,7 @@ import api from './api';
 
 export interface ModelConfig {
   id: string;
-  provider: string; // 'openai' | 'gemini' | 'deepseek'
+  provider: string; // 'openai兼容' | 'gemini' | 'deepseek'
   apiKey?: string;
   baseUrl?: string;
   modelName?: string;

@@ -46,4 +46,13 @@ public class WorkflowController {
     public Workflow getWorkflow(@PathVariable String id) {
         return workflowService.getWorkflow(id);
     }
+
+    /**
+     * 删除工作流
+     * @param id 工作流ID
+     */
+    @DeleteMapping("/{id}")
+    public void deleteWorkflow(@PathVariable String id) {
+        workflowService.deleteWorkflow(id);
+    }
 }
