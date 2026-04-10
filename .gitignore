@@ -1,4 +1,4 @@
-backend/target/
-frontend/dist/
 **/target/
-*.class
+**/node_modules/
+**/dist/
+**/%USERPROFILE%/
