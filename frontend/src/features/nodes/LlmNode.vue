@@ -17,7 +17,7 @@
         @change="updateProvider"
         class="border rounded p-1 text-sm bg-transparent dark:border-gray-600 dark:text-gray-200 nodrag"
       >
-        <option value="openai">OpenAI</option>
+        <option value="openai">OpenAI兼容</option>
         <option value="gemini">Google Gemini</option>
         <option value="deepseek">Deepseek</option>
       </select>

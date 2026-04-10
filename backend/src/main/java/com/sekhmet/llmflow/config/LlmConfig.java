@@ -21,9 +21,9 @@ public class LlmConfig {
     /** 模型名称 */
     private String modelName;
     /** 温度参数 (0.0 - 2.0)，控制生成结果的随机性 */
-    private Double temperature = 0.7;
+    private Double temperature = 1.0;
     /** Top K 参数，限制采样的 token 数量 */
     private Integer topK;
     /** Top P 参数，核采样概率阈值 */
-    private Double topP;
+    private Double topP = 0.98;
 }

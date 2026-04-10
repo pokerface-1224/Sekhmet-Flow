@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { NodeProps } from "@vue-flow/core";
-import { Handle, Position } from "@vue-flow/core";
+import { Handle, Position, useVueFlow } from "@vue-flow/core";
 import { NodeResizer } from "@vue-flow/node-resizer";
 import "@vue-flow/node-resizer/dist/style.css";
 import { computed } from "vue";
@@ -8,6 +8,7 @@ import { useWorkflowStore } from "../../stores/workflowStore";
 import BaseNode from "./BaseNode.vue";
 
 const props = defineProps<NodeProps>();
+const { updateNodeData } = useVueFlow();
 
 const displayLabel = computed(() => {
   if (typeof props.label === "string" || typeof props.label === "number") {
@@ -33,12 +34,14 @@ const workflowStore = useWorkflowStore();
 
     <div class="flex flex-col gap-2 h-full">
       <div
-        class="border rounded p-2 text-sm w-full flex-1 overflow-y-auto bg-gray-50 dark:bg-gray-900 dark:border-gray-600 dark:text-gray-200"
+        class="border rounded p-2 text-sm w-full flex-1 flex flex-col bg-gray-50 dark:bg-gray-900 dark:border-gray-600 dark:text-gray-200"
       >
-        <span v-if="data.output" class="whitespace-pre-wrap">{{
-          data.output
-        }}</span>
-        <span v-else class="text-gray-400 italic">正在等待输出...</span>
+        <textarea
+          :value="data.output || ''"
+          @input="(e) => updateNodeData(id, { output: (e.target as HTMLTextAreaElement).value })"
+          placeholder="暂无输出"
+          class="w-full flex-1 bg-transparent border-none resize-none focus:outline-none whitespace-pre-wrap nodrag text-inherit"
+        ></textarea>
       </div>
     </div>
   </BaseNode>

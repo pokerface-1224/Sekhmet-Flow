@@ -9,12 +9,14 @@ import dev.langchain4j.model.chat.ChatLanguageModel;
 import dev.langchain4j.data.message.AiMessage;
 import dev.langchain4j.data.message.UserMessage;
 import dev.langchain4j.model.output.Response;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * LLM 服务类
  * 封装 LangChain4j 的调用，支持多 Provider (OpenAI, Gemini, DeepSeek)
  */
 @Service
+@Slf4j
 public class LlmService {
 
   private final LlmConfig globalConfig;
@@ -64,6 +66,7 @@ public class LlmService {
       throw new RuntimeException("Model instance is null");
     }
     try {
+      log.info("\n====== AI Prompt (User) ======\n{}\n=======================", prompt);
       return model.generate(UserMessage.from(prompt));
     } catch (Exception e) {
       throw new RuntimeException("Error calling LLM: " + e.getMessage(), e);
@@ -88,6 +91,7 @@ public class LlmService {
     messages.add(UserMessage.from(userPrompt));
 
     try {
+      log.info("\n====== AI Prompt ======\n[System]:\n{}\n\n[User]:\n{}\n=======================", systemPrompt, userPrompt);
       return model.generate(messages);
     } catch (Exception e) {
       throw new RuntimeException("Error calling LLM: " + e.getMessage(), e);
@@ -131,6 +135,7 @@ public class LlmService {
     }
 
     try {
+      log.info("\n====== AI Prompt (User) ======\n{}\n=======================", prompt);
       return modelToUse.generate(UserMessage.from(prompt));
     } catch (Exception e) {
       LlmConfig configToUse = (overrideConfig != null) ? overrideConfig : globalConfig;
@@ -160,6 +165,7 @@ public class LlmService {
     messages.add(UserMessage.from(userPrompt));
 
     try {
+      log.info("\n====== AI Prompt ======\n[System]:\n{}\n\n[User]:\n{}\n=======================", systemPrompt, userPrompt);
       return modelToUse.generate(messages);
     } catch (Exception e) {
       throw new RuntimeException("Error calling LLM with System Prompt: " + e.getMessage(), e);

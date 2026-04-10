@@ -112,6 +112,12 @@ public class LlmNodeExecutor implements NodeExecutor {
       debugInfo.put("tokenUsage", usageMap);
     }
 
+    if (systemPrompt != null && !systemPrompt.isEmpty()) {
+      debugInfo.put("finalPromptLayout", "[System]:\n" + systemPrompt + "\n\n[User]:\n" + inputPrompt);
+    } else {
+      debugInfo.put("finalPromptLayout", "[User]:\n" + inputPrompt);
+    }
+
     output.put("_execution_config", debugInfo);
 
     return output;

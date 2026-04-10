@@ -159,6 +159,9 @@ export const useWorkflowStore = defineStore("workflow", () => {
                 const output = config.tokenUsage.output || 0;
                 logDetails.Token消耗 = `Input: ${input} | Output: ${output}`;
               }
+              if (config.finalPromptLayout) {
+                logDetails.最终提示词 = config.finalPromptLayout;
+              }
             }
 
             // Response preview (LLM node)
